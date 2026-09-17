@@ -87,5 +87,8 @@ npm run dev
 *The frontend will be available at http://localhost:5173*
 
 ## 12. Deployment
-The backend can be deployed on platforms like Railway or Render by setting the start command to `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-The `frontend` can be deployed easily on Vercel by linking the repository.
+## Live Deployment
+
+Frontend: https://techloom-careers-9v7e.vercel.app
+
+Backend: https://techloom-careers.onrender.com
