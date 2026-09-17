@@ -75,7 +75,7 @@ pip install -r requirements.txt
 python seed.py
 uvicorn app.main:app --reload
 ```
-*The backend will be available at http://localhost:8000*
+*The backend will be available at http://127.0.0.1:8000/docs*
 
 ### Frontend Setup
 Open another new terminal and run:
