@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { productApi, cartApi } from '../services/api';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock_quantity: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -40,13 +43,33 @@ const Products = () => {
     }
   };
 
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await productApi.create({
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        stock_quantity: parseInt(newProduct.stock_quantity, 10)
+      });
+      setShowModal(false);
+      setNewProduct({ name: '', description: '', price: '', stock_quantity: '' });
+      fetchProducts(); // Refresh list
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add product");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1>Products</h1>
-        <button className="btn btn-primary">Add Product</button>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>Add Product</button>
       </div>
       
       <div className="grid grid-cols-4 gap-4">
@@ -69,6 +92,63 @@ const Products = () => {
           </div>
         ))}
       </div>
+
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Add New Product</h2>
+              <button onClick={() => setShowModal(false)} className="close-btn">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleAddProduct}>
+              <div className="form-group">
+                <label className="form-label">Name</label>
+                <input 
+                  type="text" 
+                  required
+                  className="form-control" 
+                  value={newProduct.name}
+                  onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea 
+                  className="form-control" 
+                  value={newProduct.description}
+                  onChange={e => setNewProduct({...newProduct, description: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Price ($)</label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  required
+                  className="form-control" 
+                  value={newProduct.price}
+                  onChange={e => setNewProduct({...newProduct, price: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Stock Quantity</label>
+                <input 
+                  type="number" 
+                  required
+                  className="form-control" 
+                  value={newProduct.stock_quantity}
+                  onChange={e => setNewProduct({...newProduct, stock_quantity: e.target.value})}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary w-full" disabled={submitting}>
+                {submitting ? 'Adding...' : 'Save Product'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
